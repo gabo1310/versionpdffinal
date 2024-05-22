@@ -3,13 +3,13 @@ import { addError } from '$s/errors';
 
 // Interfaz para definir la estructura de los errores de la API
 interface ApiError {
-	message: string;
-	error: string;
+	message: string; // Mensaje descriptivo del error
+	error: string;   // Código o identificador del error
 }
 
 // Crear una instancia de Axios con una URL base
 export const api = axios.create({
-	baseURL: '/api'
+	baseURL: '/api' // Establece la URL base para todas las solicitudes de la instancia de Axios
 });
 
 // Interceptores de respuesta para manejar errores globales
@@ -54,7 +54,7 @@ export const getErrorMessage = (error: unknown) => {
 		return error.message;
 	}
 
-	return 'Something went wrong';
+	return 'Something went wrong'; // Mensaje genérico en caso de no poder determinar el error
 };
 
 // Función para obtener el error completo de una respuesta de Axios
@@ -64,5 +64,5 @@ export const getError = (error: unknown) => {
 		return apiError;
 	}
 
-	return null;
+	return null; // Retorna null si no es un error de Axios
 };

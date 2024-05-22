@@ -1,6 +1,9 @@
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 import { writable, get } from 'svelte/store';
 import { api, getErrorMessage } from '$api';
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 export type User =
 	| {
 			id: string;
@@ -8,13 +11,15 @@ export type User =
 	  }
 	| null
 	| false;
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 interface AuthInfo {
 	user: User;
 	error: string;
 	loading: boolean;
 }
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 const INITIAL_STATE = {
 	user: null,
 	error: '',
@@ -26,7 +31,8 @@ const auth = writable<AuthInfo>(INITIAL_STATE);
 const set = (val: Partial<AuthInfo>) => {
 	auth.update((state) => ({ ...state, ...val }));
 };
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 const getUser = async () => {
 	const { loading, user } = get(auth);
 
@@ -49,7 +55,8 @@ const getUser = async () => {
 		set({ loading: false });
 	}
 };
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 const signin = async (email: string, password: string) => {
 	set({ error: '', loading: true });
 
@@ -65,7 +72,8 @@ const signin = async (email: string, password: string) => {
 		set({ loading: false });
 	}
 };
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 const signout = async () => {
 	set({ loading: true });
 	try {
@@ -77,7 +85,8 @@ const signout = async () => {
 		set({ loading: false });
 	}
 };
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 const signup = async (email: string, password: string) => {
 	set({ error: '', loading: true });
 
@@ -90,7 +99,8 @@ const signup = async (email: string, password: string) => {
 		set({ loading: false });
 	}
 };
-
+// ------------------------------------------------------------
+// ------------------------------------------------------------
 const clearErrors = () => {
 	set({ error: '', loading: false });
 };

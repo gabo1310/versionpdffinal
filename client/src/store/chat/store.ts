@@ -1,155 +1,163 @@
-import { get } from 'svelte/store';  // Importa la función 'get' de Svelte para obtener el estado de la tienda
-import { writable } from '../writeable';  // Importa la función 'writable' para crear una tienda de datos
-import { api } from '$api';  // Importa el módulo 'api' para realizar llamadas a la API
+import { get } from 'svelte/store';
+import { writable } from '../writeable';
+import { api } from '$api';
 
-// Define las interfaces para los objetos Message y Conversation
 export interface Message {
-    id?: number;
-    role: 'user' | 'assistant' | 'system' | 'pending';
-    content: string;
+	id?: number;
+	role: 'user' | 'assistant' | 'system' | 'pending';
+	content: string;
 }
 
 export interface Conversation {
-    id: number;
-    messages: Message[];
+	id: number;
+	messages: Message[];
 }
 
-// Define la interfaz para las opciones de mensaje
 export interface MessageOpts {
-    useStreaming?: boolean;
-    documentId?: string;
+	useStreaming?: boolean;
+	documentId?: string;
 }
 
-// Define la interfaz para el estado del chat
 export interface ChatState {
-    error: string;
-    loading: boolean;
-    activeConversationId: number | null;
-    conversations: Conversation[];
+	error: string;
+	loading: boolean;
+	activeConversationId: number | null;
+	conversations: Conversation[];
 }
 
-// Define el estado inicial del chat
+// const stuff = [
+// 	{
+// 		role: 'user',
+// 		content: 'can the national guard provide transportation to the special olympics?'
+// 	},
+// 	{
+// 		role: 'assistant',
+// 		content:
+// 			'Yes, the National Guard may provide transportation to the Special Olympics under the eligible organizations listed in section (d)(9) of the statute, which includes the Special Olympics. The facilities and equipment of the National Guard, including vehicles leased to the Department of Defense, may be used to provide services to any eligible organization listed in this section, which the Special Olympics is a part of. However, it is important to note that this assistance may be subject to funding availability and other logistical considerations.'
+// 	},
+// 	{
+// 		role: 'user',
+// 		content: 'what other organizations can they provide transportation for?'
+// 	},
+// 	{
+// 		role: 'assistant',
+// 		content:
+// 			"The National Guard may provide transportation to the following organizations under section (d)(1) to (d)(14) of the statute:\nThe Boy Scouts of America.\nThe Girl Scouts of America.\nThe Boys Clubs of America.\nThe Girls Clubs of America.\nThe Young Men's Christian Association.\nThe Young Women's Christian Association.\nThe Civil Air Patrol.\nThe United States Olympic Committee.\nThe Special Olympics.\nThe Campfire Boys.\nThe Campfire Girls.\nThe 4–H Club.\nThe Police Athletic League.\nAny other youth or charitable organization designated by the Secretary of Defense."
+// 	},
+// 	{
+// 		role: 'pending',
+// 		content: 'asdf'
+// 	}
+// ] as Message[];
+
 const INITIAL_STATE: ChatState = {
-    error: '',
-    loading: false,
-    activeConversationId: null,
-    conversations: []
+	error: '',
+	loading: false,
+	activeConversationId: null,
+	conversations: []
 };
 
-// Crea una tienda de datos con el estado inicial
 const store = writable<ChatState>(INITIAL_STATE);
 
-// Función para actualizar el estado del chat
 const set = (val: Partial<ChatState>) => {
-    store.update((state) => ({ ...state, ...val }));
+	store.update((state) => ({ ...state, ...val }));
 };
 
-// Función para obtener los mensajes de la conversación activa
 const getRawMessages = () => {
-    const conversation = getActiveConversation();
-    if (!conversation) {
-        return [];
-    }
+	const conversation = getActiveConversation();
+	if (!conversation) {
+		return [];
+	}
 
-    return conversation.messages
-        .filter((message) => message.role !== 'pending')
-        .map((message) => {
-            return { role: message.role, content: message.content };
-        });
+	return conversation.messages
+		.filter((message) => message.role !== 'pending')
+		.map((message) => {
+			return { role: message.role, content: message.content };
+		});
 };
 
-// Función para obtener la conversación activa
 const getActiveConversation = () => {
-    const { conversations, activeConversationId } = get(store);
-    if (!activeConversationId) {
-        return null;
-    }
+	const { conversations, activeConversationId } = get(store);
+	if (!activeConversationId) {
+		return null;
+	}
 
-    return conversations.find((c) => c.id === activeConversationId);
+	return conversations.find((c) => c.id === activeConversationId);
 };
 
-// Función para insertar un mensaje en la conversación activa
 const insertMessageToActive = (message: Message) => {
-    store.update((s) => {
-        const conv = s.conversations.find((c) => c.id === s.activeConversationId);
-        if (!conv) {
-            return;
-        }
-        conv.messages.push(message);
-    });
+	store.update((s) => {
+		const conv = s.conversations.find((c) => c.id === s.activeConversationId);
+		if (!conv) {
+			return;
+		}
+		conv.messages.push(message);
+	});
 };
 
-// Función para eliminar un mensaje de la conversación activa
 const removeMessageFromActive = (id: number) => {
-    store.update((s) => {
-        const conv = s.conversations.find((c) => c.id === s.activeConversationId);
-        if (!conv) {
-            return;
-        }
-        conv.messages = conv.messages.filter((m) => m.id != id);
-    });
+	store.update((s) => {
+		const conv = s.conversations.find((c) => c.id === s.activeConversationId);
+		if (!conv) {
+			return;
+		}
+		conv.messages = conv.messages.filter((m) => m.id != id);
+	});
 };
 
-// Función para enviar una puntuación a la conversación activa
 const scoreConversation = async (score: number) => {
-    const conversationId = get(store).activeConversationId;
+	const conversationId = get(store).activeConversationId;
 
-    return api.post(`/scores?conversation_id=${conversationId}`, { score });
+	return api.post(`/scores?conversation_id=${conversationId}`, { score });
 };
 
-// Función para obtener las conversaciones de la API
 const fetchConversations = async (documentId: number) => {
-    const { data } = await api.get<Conversation[]>(`/conversations?pdf_id=${documentId}`);
+	const { data } = await api.get<Conversation[]>(`/conversations?pdf_id=${documentId}`);
 
-    if (data.length) {
-        set({
-            conversations: data,
-            activeConversationId: data[0].id
-        });
-    } else {
-        await createConversation(documentId);
-    }
+	if (data.length) {
+		set({
+			conversations: data,
+			activeConversationId: data[0].id
+		});
+	} else {
+		await createConversation(documentId);
+	}
 };
 
-// Función para crear una nueva conversación en la API
 const createConversation = async (documentId: number) => {
-    const { data } = await api.post<Conversation>(`/conversations?pdf_id=${documentId}`);
+	const { data } = await api.post<Conversation>(`/conversations?pdf_id=${documentId}`);
 
-    set({
-        activeConversationId: data.id,
-        conversations: [data, ...get(store).conversations]
-    });
+	set({
+		activeConversationId: data.id,
+		conversations: [data, ...get(store).conversations]
+	});
 
-    return data;
+	return data;
 };
 
-// Función para establecer la conversación activa por su ID
 const setActiveConversationId = (id: number) => {
-    set({ activeConversationId: id });
+	set({ activeConversationId: id });
 };
 
-// Función para restablecer el estado del chat
 const resetAll = () => {
-    set(INITIAL_STATE);
+	set(INITIAL_STATE);
 };
 
-// Función para restablecer el mensaje de error
 const resetError = () => {
-    set({ error: '' });
+	set({ error: '' });
 };
 
-// Exporta las funciones y datos para su uso en otros archivos
 export {
-    store,
-    set,
-    setActiveConversationId,
-    getRawMessages,
-    fetchConversations,
-    resetAll,
-    resetError,
-    createConversation,
-    getActiveConversation,
-    insertMessageToActive,
-    removeMessageFromActive,
-    scoreConversation
+	store,
+	set,
+	setActiveConversationId,
+	getRawMessages,
+	fetchConversations,
+	resetAll,
+	resetError,
+	createConversation,
+	getActiveConversation,
+	insertMessageToActive,
+	removeMessageFromActive,
+	scoreConversation
 };
