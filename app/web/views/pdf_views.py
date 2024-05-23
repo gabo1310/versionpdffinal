@@ -96,7 +96,7 @@ def show(pdf):
 def selected_pdfs():
     data = request.get_json()
     pdf_ids = data.get('pdf_ids', [])
-    print(f"Received PDF IDs: {pdf_ids}")  # Aquí para verificar las IDs recibidas
+    #print(f"Received PDF IDs: {pdf_ids}")  # Aquí para verificar las IDs recibidas
     session['selected_pdfs'] = pdf_ids  # Guardar en la sesión del usuario
     return jsonify({"message": "PDF IDs recibidos", "pdf_ids": pdf_ids})
 

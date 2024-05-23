@@ -89,9 +89,9 @@ def build_retriever(chat_args, k):
     pdf_ids_to_search = session.get('selected_pdfs', [chat_args.pdf_id])  # Obtener las IDs de la sesión
     if isinstance(pdf_ids_to_search, str):
         pdf_ids_to_search = [pdf_ids_to_search]  # Convertir a lista si es una cadena
-    print("#############################")
-    print(f"PDF IDs to search: {pdf_ids_to_search}")  # Para depuración
-    print("#############################")
+    # print("#############################")
+    # print(f"PDF IDs to search: {pdf_ids_to_search}")  # Para depuración
+    # print("#############################")
     
     search_kwargs = {"filter": {"pdf_id": {"$in": pdf_ids_to_search}}, "k": k}
     return vector_store.as_retriever(
