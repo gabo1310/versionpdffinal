@@ -26,6 +26,11 @@ import colorama
 import sys
 import io
 from app.chat.vector_store.pinecone import vector_store
+import warnings
+
+# Ignorar todas las advertencias de LangChain deprecado
+warnings.filterwarnings("ignore", category=DeprecationWarning, module='langchain_core._api.deprecation')
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def create_embeddings_for_pdf(pdf_id: str, pdf_path: str):

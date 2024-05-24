@@ -7,6 +7,11 @@ las respuestas automáticamente.
 
 import os
 import redis
+import warnings
+
+# Ignorar todas las advertencias de LangChain deprecado
+warnings.filterwarnings("ignore", category=DeprecationWarning, module='langchain_core._api.deprecation')
+
 
 # Inicializa el cliente Redis utilizando la URL de Redis desde las variables de entorno
 client = redis.Redis.from_url(

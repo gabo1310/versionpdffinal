@@ -12,6 +12,15 @@ export type User =
 	| null
 	| false;
 // ------------------------------------------------------------
+// Define el tipo Message
+// auth.ts
+export type Message = {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+};
+
+
 // ------------------------------------------------------------
 interface AuthInfo {
 	user: User;

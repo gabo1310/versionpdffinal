@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Speech Example</title>
+    <style>
+        .message {
+            margin-bottom: 20px;
+        }
+        .message p {
+            display: inline-block;
+            margin: 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .message button {
+            margin-left: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="message">
+        <p>Este es el texto del primer mensaje.</p>
+        <button onclick="readMessage(this)">🔊 Escuchar</button>
+    </div>
+    <div class="message">
+        <p>Este es el texto del segundo mensaje.</p>
+        <button onclick="readMessage(this)">🔊 Escuchar</button>
+    </div>
+
+    <script>
+        function readMessage(button) {
+            const messageText = button.previousElementSibling.innerText;
+            const utterance = new SpeechSynthesisUtterance(messageText);
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>

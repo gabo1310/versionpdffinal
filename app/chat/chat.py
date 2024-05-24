@@ -73,7 +73,7 @@ def build_chat(chat_args: ChatArgs):
     if llm_name == "claude-3":
         condense_question_llm = ChatAnthropic(temperature=0, model_name="claude-3-opus-20240229")
     else:
-        condense_question_llm = ChatOpenAI(streaming=False, temperature=0)  # Asegúrate de establecer la temperatura a 0
+        condense_question_llm = ChatOpenAI(streaming=False, temperature=0.7)  # Asegúrate de establecer la temperatura a 0
 
 
 

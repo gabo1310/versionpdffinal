@@ -1,6 +1,6 @@
 <!-- 
 
-<script lang="ts">
+ <script lang="ts">
     import { onMount } from 'svelte';
     import {
         store,
@@ -14,19 +14,22 @@
     import ChatList from '$c/chat/ChatList.svelte';
     import ConversationSelect from '$c/chat/ConversationSelect.svelte';
     import Modal from '$c/chat/Modal.svelte';
+    import PromptModal from '$c/chat/PromptModal.svelte'; // Importar el nuevo componente modal
 
     export let onSubmit: (text: string, useStreaming: boolean) => void;
     export let documentId: number;
 
-    let useStreaming = !!localStorage.getItem('streaming');
+    let useStreaming = true; // Mantener habilitado por defecto
+    localStorage.setItem('streaming', 'true'); // Asegurar que esté habilitado en el almacenamiento local
     let pdfs: { id: string, name: string }[] = [];
     let selectedPDFs: string[] = [];
     let dropdownOpen = false;
     let showAlert = false;
     let showConfirmation = false;
     let isOpen = false; // Definir la variable isOpen para el modal
+    let showPromptModal = false; // Definir la variable para mostrar el modal del prompt
+    let promptText = ""; // Variable para almacenar el texto del prompt
 
-    $: localStorage.setItem('streaming', useStreaming ? 'true' : '');
     $: activeConversation = $store.activeConversationId ? getActiveConversation() : null;
 
     async function fetchPDFIds() {
@@ -107,6 +110,20 @@
         isOpen = false; // Cerrar el modal
     }
 
+    function openPromptModal() {
+        showPromptModal = true;
+    }
+
+    function closePromptModal() {
+        showPromptModal = false;
+    }
+
+    function handleSendPrompt() {
+        // Aquí puedes agregar la lógica para enviar el prompt al backend en el futuro
+        console.log("Prompt text:", promptText);
+        closePromptModal();
+    }
+
     onMount(() => {
         fetchConversations(documentId);
         fetchPDFIds();
@@ -118,18 +135,17 @@
     class="flex flex-col h-full bg-slate-50 border rounded-xl shadow"
 >
     <div class="rounded-lg border-b px-3 py-2 flex flex-row items-center justify-between">
-        <div class="opacity-40">
-            <input id="chat-type" type="checkbox" bind:checked={useStreaming} />
-            <label for="chat-type" class="italic">Stream</label>
-        </div>
         <div class="flex gap-2 items-center relative">
+            <button class="rounded text-sm border border-blue-500 px-2 py-0.5" on:click={openPromptModal}>
+                Prompt
+            </button>
             <button class="rounded text-sm border border-blue-500 px-2 py-0.5" on:click={toggleDropdown}>
                 PDFs
             </button>
             {#if dropdownOpen}
                 <div class="dropdown-menu">
                     {#each pdfs as pdf, index}
-                        <div>
+                        <div class="dropdown-item">
                             <input type="checkbox" id={`pdf${index + 1}`} value={pdf.id} on:change={handlePDFChange} checked={selectedPDFs.includes(pdf.id)} />
                             <label for={`pdf${index + 1}`}>{pdf.name}</label>
                         </div>
@@ -141,7 +157,7 @@
             {/if}
             <ConversationSelect conversations={$store.conversations} />
             <button class="rounded text-sm border border-blue-500 px-2 py-0.5" on:click={handleNewChat}>
-                Nuevo chat
+                New chat
             </button>
         </div>
     </div>
@@ -169,20 +185,24 @@
     Lista enviada. OK
 </Modal>
 
+<PromptModal {showPromptModal} {promptText} on:send={handleSendPrompt} on:close={closePromptModal} />
+
 <style>
     .dropdown-menu {
         position: absolute;
         top: 100%;
         left: 0;
         background-color: white;
-        border: 1px solid #ccc;
+        border: 2px solid #999; /* Cambia el grosor y el color de la línea */
         border-radius: 4px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         padding: 10px;
         z-index: 10;
     }
-    .dropdown-menu div {
-        margin-bottom: 5px;
+    .dropdown-item {
+        border-top: 2px solid #999; /* Línea superior */
+        border-bottom: 2px solid #999; /* Línea inferior */
+        padding: 8px 0; /* Espacio entre las líneas y el contenido */
     }
     .alert {
         margin-bottom: 1rem;
@@ -195,12 +215,14 @@
         background-color: #f8d7da;
         border-color: #f5c6cb;
     }
+    .conversation-item {
+        border-top: 2px solid #999; /* Línea superior */
+        border-bottom: 2px solid #999; /* Línea inferior */
+        padding: 8px 0; /* Espacio entre las líneas y el contenido */
+    }
 </style>
-
  -->
-
-
- <script lang="ts">
+<script lang="ts">
     import { onMount } from 'svelte';
     import {
         store,
@@ -228,6 +250,7 @@
     let isOpen = false; // Definir la variable isOpen para el modal
     let showPromptModal = false; // Definir la variable para mostrar el modal del prompt
     let promptText = ""; // Variable para almacenar el texto del prompt
+    let useVoice = true; // Variable para el checkbox de voz
 
     $: localStorage.setItem('streaming', useStreaming ? 'true' : '');
     $: activeConversation = $store.activeConversationId ? getActiveConversation() : null;
@@ -336,8 +359,7 @@
 >
     <div class="rounded-lg border-b px-3 py-2 flex flex-row items-center justify-between">
         <div class="opacity-40">
-            <input id="chat-type" type="checkbox" bind:checked={useStreaming} />
-            <label for="chat-type" class="italic">Stream</label>
+            <!-- Eliminado el checkbox de stream -->
         </div>
         <div class="flex gap-2 items-center relative">
             <button class="rounded text-sm border border-blue-500 px-2 py-0.5" on:click={openPromptModal}>
@@ -363,6 +385,10 @@
             <button class="rounded text-sm border border-blue-500 px-2 py-0.5" on:click={handleNewChat}>
                 New chat
             </button>
+            <label class="inline-flex items-center ml-2">
+                <input type="checkbox" checked={useVoice} on:change="{() => useVoice = !useVoice}" />
+                <span class="ml-2">Voz</span>
+            </label>
         </div>
     </div>
     <div class="flex flex-col flex-1 px-3 py-2 overflow-y-scroll">

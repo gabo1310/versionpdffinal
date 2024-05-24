@@ -1,10 +1,5 @@
 from langfuse.model import CreateTrace
 from app.chat.tracing.langfuse import langfuse
-# warnings_filter.py
-import warnings
-
-# Ignorar todas las advertencias de LangChain deprecado
-warnings.filterwarnings("ignore", category=DeprecationWarning, module='langchain_core._api.deprecation')
 
 class TraceableChain:
     def __call__(self, *args, **kwargs):
@@ -14,7 +9,12 @@ class TraceableChain:
                 metadata=self.metadata
             )
         )   
+        # Asegúrate de que callbacks sea una lista
         callbacks = kwargs.get("callbacks", [])
-        callbacks.append(trace.getNewHandler())
+        if callbacks is None:
+            callbacks = []
+        new_handler = trace.getNewHandler()
+        if new_handler is not None:
+            callbacks.append(new_handler)
         kwargs["callbacks"] = callbacks
         return super().__call__(*args, **kwargs)

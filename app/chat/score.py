@@ -6,6 +6,11 @@ y obtener las puntuaciones promedio de los componentes.
 
 from app.chat.redis import client
 import random
+import warnings
+
+# Ignorar todas las advertencias de LangChain deprecado
+warnings.filterwarnings("ignore", category=DeprecationWarning, module='langchain_core._api.deprecation')
+
 
 def random_component_by_score(component_type, component_map):
     # Asegura que el tipo de componente sea 'llm', 'retriever' o 'memory'
